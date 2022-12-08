@@ -7,15 +7,28 @@ import RepoList from './components/RepoList.jsx';
 class App extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { 
+    this.state = {
       repos: []
     }
-
   }
+
 
   search (term) {
     console.log(`${term} was searched`);
     // TODO
+    // term is our username at this point
+    // we make a POST request to /repos
+    var data = {}
+    data.username = term;
+    var requestOptions = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    };
+    fetch('/repos', requestOptions)
+      .then((result) => {
+
+      })
   }
 
   render () {
