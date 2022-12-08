@@ -1,9 +1,12 @@
 const express = require('express');
-const getRepos = require('../helpers/github.js');
+const helpers = require('../helpers/github.js');
 const Promise = require('bluebird');
 const saveRepo = require('../database/index.js')
 let app = express();
 var bodyParser = require('body-parser');
+
+const mongoose = require('mongoose');
+test = mongoose.connect('mongodb://localhost/fetcher');
 
 // TODO - your code here!
 // Set up static file service for files in the `client/dist` directory.
@@ -22,30 +25,40 @@ app.post('/repos', function (req, res) {
   // req.body.username gives us our desired username
   var username = req.body.username;
   // make the call to our helper function that calls github API
-  getRepos.getReposByUsername(username)
+  helpers.getReposByUsername(username)
     .then ( (userData) =>{
       var userRepos = userData.data;
-      // result.data gives us our array of repo data
-      // result.data[index].name, gives us the specific name of repo we want
-      var owner = userRepos[0].owner.login;
-      // result.data[index].id gives us the repo ID, could be useful
-      var repos = [];
-            // iterate through the userRepos array
-      for (var i = 0; i < userRepos.length; i++) {
-        var currRepo = userRepos[i];
-        var repoData = {}
-        var name = currRepo.name;
-        var id = currRepo.id
-        repoData[name] = id;
-        repos.push(repoData);
-      }
-      saveRepo.save(owner, repos)
-        .then ((result) => {
-          console.log(result);
-          res.send('request complete!')
-          console.log('success!')
+      // iterate through all repos
+      Promise.all(userRepos.map( (currRepo) => {
+        return saveRepo.uniqueCheck(currRepo.name)
+          .then( (result) => {
+            return result;
+          })
+      }))
+        .then ( (result) => {
+          // iterate over the array of the results
+          return Promise.all(result.map( (currResult, index) => {
+            if (currResult) {
+              return saveRepo.save(userRepos[index].name)
+                .then ( (result) => {
+                  return result;
+                })
+            } else {
+              return saveRepo.increaseCount(userRepos[index].name)
+                .then ( (result) => {
+                  return result;
+                })
+            }
+          }))
+          .then ( (result) => {
+            console.log(result[0]);
+          })
         })
-    })
+        // look into promise.promisifyAll for arrays
+        // probably need to use it here with uniqueCheck.
+        // probably need to use a ._map
+      })
+      res.send('All user repos added to database!')
 });
 
 app.get('/repos', function (req, res) {

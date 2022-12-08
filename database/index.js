@@ -3,45 +3,44 @@ const Promise = require('bluebird');
 mongoose.connect('mongodb://localhost/fetcher');
 
 let repoSchema = mongoose.Schema({
-  username: String,
-  repos: []
+  repoName: String,
+  repoCount: Number,
 });
 
 let Repo = mongoose.model('Repo', repoSchema);
 
-// storage to determine uniqueness
-var storage = {};
-
-let save = (username, repos) => {
+let save = (repo) => {
   // TODO: Your code here
   // This function should save a repo or repos to
   // the MongoDB
-  var uniqueRepos = [];
-
-  // iterate through the repos
-  for (var i = 0; i < repos.length; i++) {
-    // repo object ie. { shortly-express: '*id number*'}
-    var currRepo = repos[i];
-    // name of the repo ie. shortly-express
-    var key = Object.keys(repos[i])[0];
-    if (storage.key === undefined) {
-      uniqueRepos.push(key)
-      storage.key = 1;
-    } else if (storage.key) {
-      storage.key += 1;
-    }
-  }
-  // repos will be an array of strings
-  // create a new schema with arguments
-  var userData = new Repo({
-    username: username,
-    id: id,
-    repos: uniqueRepos
+  var addRepo = new Repo({
+    repoName: repo,
+    repoCount: 1
   })
-  return userData.save()
+  return addRepo.save()
+    .then ((result)=>{
+     return 'Added repo to database';
+    })
+}
+
+let uniqueCheck = (currRepo) => {
+  return Repo.findOne({'repoName': currRepo})
     .then ((result) => {
-      return result;
+      if (result === null) {
+        return true;
+      } else {
+        return false;
+      }
+    })
+}
+
+let increaseCount = (currRepo) => {
+  return Repo.updateOne({'repoName': currRepo}, {$inc: {'repoCount': 1}})
+    .then((result) => {
+      return 'Repo already exists, popularity +1'
     })
 }
 
 module.exports.save = save;
+module.exports.uniqueCheck = uniqueCheck;
+module.exports.increaseCount = increaseCount;
