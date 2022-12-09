@@ -8,7 +8,7 @@ class Search extends React.Component {
     }
     // need a binding so that this.setState is not undefined and shows up
     this.onChange = this.onChange.bind(this);
-    // 
+    //
     this.search = this.search.bind(this);
   }
 
@@ -16,6 +16,7 @@ class Search extends React.Component {
     this.setState({
       term: e.target.value
     });
+    console.log(this.state);
   }
 
   search(props) {

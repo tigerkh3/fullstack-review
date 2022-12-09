@@ -14,8 +14,12 @@ class App extends React.Component {
 
 
   search (term) {
-    console.log(`${term} was searched`);
+    console.log(typeof `${term} was searched`);
     // TODO
+    if (term === '') {
+      console.log('error empty form');
+      return;
+    }
     // term is our username at this point
     // we make a POST request to /repos
     var data = {}

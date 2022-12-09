@@ -52,19 +52,27 @@ app.post('/repos', function (req, res) {
           }))
           .then ( (result) => {
             console.log(result[0]);
+            res.send('All user repos added to database!')
           })
         })
         // look into promise.promisifyAll for arrays
         // probably need to use it here with uniqueCheck.
         // probably need to use a ._map
       })
-      res.send('All user repos added to database!')
 });
 
 app.get('/repos', function (req, res) {
   // TODO - your code here!
-  res.send("Working");
   // This route should send back the top 25 repos
+
+  saveRepo.top25()
+    .then ( (result) => {
+      res.status(200).send(result);
+      return result;
+    })
+  // we want to make a call to our database
+  // might be easier to import another function existing in our database
+
 });
 
 let port = 1128;
