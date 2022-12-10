@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom';
 import $ from 'jquery';
 import Search from './components/Search.jsx';
 import RepoList from './components/RepoList.jsx';
-
 class App extends React.Component {
   constructor(props) {
     super(props);
@@ -14,13 +13,9 @@ class App extends React.Component {
 
 
   search (term) {
-    console.log(typeof `${term} was searched`);
+    console.log(`${term} was searched`);
     // TODO
-    if (term === '') {
-      console.log('error empty form');
-      return;
-    }
-    // term is our username at this point
+
     // we make a POST request to /repos
     var data = {}
     data.username = term;
@@ -30,16 +25,28 @@ class App extends React.Component {
       body: JSON.stringify(data),
     };
     fetch('/repos', requestOptions)
-      .then((result) => {
-
+      .then(() => {
+         // make a request to update our repos list with new ones
+         var request = {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json'},
+        }
+        fetch('/repos', request)
+          .then ( (response) => {
+            response.json()
+            . then ( (result) => {
+              this.setState({repos: result.data})
+            })
+          })
       })
   }
 
   render () {
     return (<div>
       <h1>Github Fetcher</h1>
-      <RepoList repos={this.state.repos}/>
+
       <Search onSearch={this.search.bind(this)}/>
+      <RepoList repos={this.state.repos}/>
     </div>)
   }
 }

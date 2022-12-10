@@ -51,13 +51,9 @@ app.post('/repos', function (req, res) {
             }
           }))
           .then ( (result) => {
-            console.log(result[0]);
             res.send('All user repos added to database!')
           })
         })
-        // look into promise.promisifyAll for arrays
-        // probably need to use it here with uniqueCheck.
-        // probably need to use a ._map
       })
 });
 
@@ -67,8 +63,8 @@ app.get('/repos', function (req, res) {
 
   saveRepo.top25()
     .then ( (result) => {
-      res.status(200).send(result);
-      return result;
+      console.log('this data should be an array', Array.isArray(result));
+      res.send({data: result});
     })
   // we want to make a call to our database
   // might be easier to import another function existing in our database
