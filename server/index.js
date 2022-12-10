@@ -16,6 +16,8 @@ app.use(bodyParser.json());
 // Webpack is configured to generate files in that directory and
 // this server must serve those files when requested.
 
+
+
 app.post('/repos', function (req, res) {
   // TODO - your code here!
   // This route should take the github username provided
@@ -39,7 +41,7 @@ app.post('/repos', function (req, res) {
           // iterate over the array of the results
           return Promise.all(result.map( (currResult, index) => {
             if (currResult) {
-              return saveRepo.save(userRepos[index].name)
+              return saveRepo.save(userRepos[index].name, userRepos[index].clone_url)
                 .then ( (result) => {
                   return result;
                 })
@@ -57,13 +59,16 @@ app.post('/repos', function (req, res) {
       })
 });
 
+app.get('/', function (req, res) {
+  res.redirect('/repos').status(200);
+})
+
 app.get('/repos', function (req, res) {
   // TODO - your code here!
   // This route should send back the top 25 repos
 
   saveRepo.top25()
     .then ( (result) => {
-      console.log('this data should be an array', Array.isArray(result));
       res.send({data: result});
     })
   // we want to make a call to our database
