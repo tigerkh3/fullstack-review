@@ -13,7 +13,7 @@ const RepoList = (props) => (
       </tr>
     {props.repos.map( (currRepo, index) => {
       return <tr>
-        <th><a href={currRepo.repoLink}>{currRepo.repoName}</a></th>
+        <th><a href={currRepo.repoLink} target='_blank'>{currRepo.repoName}</a></th>
         <th>{currRepo.repoCount}</th>
     </tr>
     })}
